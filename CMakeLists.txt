@@ -104,15 +104,18 @@ if (NOT (${ISMRMRD_XML_SCHEMA_SHA1} STREQUAL ${ISMRMRD_CURRENT_XML_SCHEMA_SHA1})
   message(FATAL_ERROR "     FATAL XML VERSION ERROR")
 endif()
 
+find_package(HDF5 COMPONENTS C shared)
 
-# Find HDF5 for dataset support
-find_package(HDF5 1.8 COMPONENTS C)
-
-if (HDF5_FOUND)
+if (HDF5_FOUND) 
     set (ISMRMRD_DATASET_SUPPORT true)
     set (ISMRMRD_DATASET_SOURCES libsrc/dataset.c libsrc/dataset.cpp)
-    set (ISMRMRD_DATASET_INCLUDE_DIR ${HDF5_INCLUDE_DIRS})
-    set (ISMRMRD_DATASET_LIBRARIES ${HDF5_LIBRARIES})
+    set (ISMRMRD_DATASET_INCLUDE_DIR ${HDF5_INCLUDE_DIR})
+    if(HDF5_shared_C_FOUND)
+      set (ISMRMRD_DATASET_LIBRARIES ${HDF5_C_SHARED_LIBRARY})
+    else()
+      message(FATAL_ERROR "HDF5 has no dataset support!")
+    endif()
+    
     add_definitions(${HDF5_DEFINITIONS})
 else ()
     set (ISMRMRD_DATASET_SUPPORT false)
